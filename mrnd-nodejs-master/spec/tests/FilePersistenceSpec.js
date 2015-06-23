@@ -1,28 +1,28 @@
 
-describe("Contacts Test Suite", function(){
+var getContactFileName = function(id) {
+
+	// We assume contacts are stored under data sub-folder
+	//return "data\\" + id + "-Contact.json";
+	return "../../src/contacts/routes/data/"  + id + "-Contact.json";
+}
+var getMessageFileName = function(id) {
+
+	// We assume contacts are stored under data sub-folder
+	//return "data\\" + id + "-Message.json";
+	return "../../src/contacts/routes/data/" + id + "-Message.json";
+}
+
+
+describe("FilePersistence Test Suite", function(){
 
 	//var request = require('request');
 	var request = require('C:/Program Files/nodejs/node_modules/npm/node_modules/request')
 	var base_url = "http://localhost:3000";
 	var contacts_url = base_url + "/contacts";
+	var fs = require('fs');
 
-	describe("hello world", function(){
-
-		it("hello world",function(done){
-		    
-		    request.get(base_url, function(error, response, body){
-
-				expect(response.statusCode).toBe(200);
-				//expect(body).toBe("Hello World");
-
-				done();
-		    });
-		});
-
-	});
-
-	describe("create update contact", function(){
-		var idCreated=0;
+	describe("create persist contact", function(){
+		var idCreated;
 
 		it("should create contact",function(done){
 
@@ -42,24 +42,19 @@ describe("Contacts Test Suite", function(){
 							expect(response.statusCode).toBe(200);
 							console.log(body);
 							idCreated = body;
-							console.log(idCreated+"");
 							done();
 					    });
 		});
 
-		it("should retrieve contact",function(done){
+		it("should persist contact",function(done){
 
-			request.get({
-							url: contacts_url + "/" + idCreated,
-							json: true
-						},
-		    		    function(error, response, body){
+			var fileName = getContactFileName(idCreated);
+            console.log(fileName);
+			var obj =JSON.parse(fs.readFileSync(fileName)); //JSON.parse(fs.readFileSync(fileName));
+             //console.log(JSON.parse(obj.firstName));
+			expect(obj.firstName).toBe("jagan");
+			done();
 
-							expect(response.statusCode).toBe(200);
-							console.log(body);
-							expect(body.firstName).toBe("jagan");
-							done();
-					    });
 		});
 		it("should update contact",function(done){
 
@@ -73,9 +68,12 @@ describe("Contacts Test Suite", function(){
 		    		    function(error, response, body){
 
 							expect(response.statusCode).toBe(200);
-							console.log(body);
-							expect(body.firstName).toBe("jagan-updated");
-							expect(body.phone).toBe("23002300");
+							//console.log(body);
+
+							var fileName = getContactFileName(idCreated);
+                              
+							var obj = JSON.parse(fs.readFileSync(fileName));
+							expect(obj.firstName).toBe("jagan-updated");
 							done();
 					    });
 		});
@@ -84,7 +82,7 @@ describe("Contacts Test Suite", function(){
 	//TODO: Fill out the test case below that posts a message to a contact
 	// and retrieves it back.
 	describe("post and get message to contact", function(){
-        var idCreated=0;
+         var idCreated;
 		it("should post message to contact", function(done){
 			//TODO: Write your test case here.
 			var message = new Object();
@@ -93,7 +91,7 @@ describe("Contacts Test Suite", function(){
 
 			console.log(JSON.stringify(message));
 		    
-		    request.post({url: contacts_url + "/message",
+		    request.post({url: contacts_url+"/message",
 		    			  body: message,
 		    			  json: true
 		    			}, 
@@ -102,30 +100,26 @@ describe("Contacts Test Suite", function(){
 							expect(response.statusCode).toBe(200);
 							console.log(body);
 							idCreated = body;
-							console.log(idCreated+"");
-							done();
 			
-			
+			done();
 
-		});
+		                });
 		});
 
 		it("should get message for contact", function(done){
 			//TODO: Write your test case here.
-			request.get({
-							url: contacts_url + "/message/" + idCreated,
-							json: true
-						},
-		    		    function(error, response, body){
+			var fileName = getMessageFileName(idCreated);
 
-							expect(response.statusCode).toBe(200);
-							expect(body.text).toBe("hello");
-							done();
+			var obj = JSON.parse(fs.readFileSync(fileName));
+
+			expect(obj.text).toBe("hello");
+			done();
 			
 
 		});
 
 	});
 
-});
+
+	
 });
